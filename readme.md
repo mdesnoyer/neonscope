@@ -13,3 +13,6 @@
 
 ## Caveats
 - If the site also uses style properties the same as this is using, there might be a style fight and the results could be a bit wonky.
+
+## Original
+- http://codepen.io/edhenderson/pen/VvKBNX (not maintained)
