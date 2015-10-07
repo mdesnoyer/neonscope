@@ -5,25 +5,14 @@
 img[src*="neon-images.com"],
 *[style*="neon-images.com"]:before {
     box-sizing: border-box !important;
-    border: 10px solid rgba(255, 0, 255, 0.618) !important;
+    border-top: 10px solid rgba(117, 182, 58, 1) !important;
+    border-right: 10px solid rgba(255, 91, 21, 1) !important;
+    border-bottom: 10px solid rgba(0, 195, 216, 1) !important;
+    border-left: 10px solid rgba(255, 91, 21, 1) !important;
 }
 
 *[style*="neon-images.com"]:before {
-    font-family: Arial, sans-serif;
-    font-weight: normal;
-    content: 'Neonscope' !important;
-    color: #fff !important;
-    text-align: center !important;
-    font-size: 1.618em !important;
-    line-height: 4;
-    text-transform: uppercase;
-    letter-spacing: 0.25em;
-    text-shadow:
-        1px -1px 0 rgba(255, 0, 255, 0.618),
-        1px 1px 0 rgba(255, 0, 255, 0.618),
-        -1px 1px 0 rgba(255, 0, 255, 0.618),
-        -1px -1px 0 rgba(255, 0, 255, 0.618) !important
-    ;
+    content: '';
     position: absolute !important;
     width: 100% !important;
     height: 100% !important;
@@ -31,9 +20,11 @@ img[src*="neon-images.com"],
     left: 0 !important;
     background: repeating-linear-gradient(
         45deg,
-        transparent,
-        transparent 10px,
-        rgba(255, 0, 255, 0.618) 10px,
-        rgba(255, 0, 255, 0.618) 40px
+        rgba(255, 91, 21, 0.382) 0,
+        rgba(255, 91, 21, 0.382) 5px,
+        rgba(117, 182, 58, 0.382) 5px,
+        rgba(117, 182, 58, 0.382) 10px,
+        rgba(0, 195, 216, 0.382) 10px,
+        rgba(0, 195, 216, 0.382) 15px
     ) !important;
 }
