@@ -1,9 +1,9 @@
-*[style*="neon-images.com"] {
+.neonscope-true *[style*="neon-images.com"] {
     position: relative;
 }
 
-img[src*="neon-images.com"],
-*[style*="neon-images.com"]:before {
+.neonscope-true img[src*="neon-images.com"],
+.neonscope-true *[style*="neon-images.com"]:before {
     box-sizing: border-box !important;
     border-top: 10px solid rgba(117, 182, 58, 1) !important;
     border-right: 10px solid rgba(255, 91, 21, 1) !important;
@@ -11,7 +11,7 @@ img[src*="neon-images.com"],
     border-left: 10px solid rgba(255, 91, 21, 1) !important;
 }
 
-*[style*="neon-images.com"]:before {
+.neonscope-true *[style*="neon-images.com"]:before {
     content: '';
     position: absolute !important;
     width: 100% !important;
@@ -27,4 +27,20 @@ img[src*="neon-images.com"],
         rgba(0, 195, 216, 0.382) 10px,
         rgba(0, 195, 216, 0.382) 15px
     ) !important;
+}
+
+.neonscope-true *[style*="neon-images.com"]:after {
+    content: 'TODO';
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    position: absolute !important;
+    width: 5em !important;
+    height: 2em !important;
+    line-height: 2;
+    transform: translate(-50%, -50%);
+    top: 50% !important;
+    left: 50% !important;
+    background: rgba(255, 91, 21, 1) !important;
+    color: #fff;
+    text-align: center;
 }
