@@ -4,6 +4,7 @@
 
     $neon-orange: #ff5b15;
     $neon-blue: #00c3d8;
+    $neon-green: #75b63a;
     $black: #000;
     $white: #fff;
     $gold: gold;
@@ -45,6 +46,32 @@
 
 .neonscope-mask {
     z-index: 2147483647;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+.neonscope-winning-mask {
+    box-shadow:
+        inset 4px 0 0 0 #75b63a,
+        inset -4px 0 0 0 #75b63a,
+        inset 0 4px 0 0 #75b63a,
+        inset 0 -4px 0 0 #75b63a
+    ;
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(117, 182, 58, 0.382) 0,
+        rgba(117, 182, 58, 0.382) 4px,
+        rgba(117, 182, 58, 0.382) 4px,
+        rgba(117, 182, 58, 0.382) 8px,
+        rgba(117, 182, 58, 0.382) 8px,
+        rgba(117, 182, 58, 0.382) 12px
+    );
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+.-neonscope-foreground-image,
+.-neonscope-background-image {
     background: repeating-linear-gradient(
         45deg,
         rgba(255, 91, 21, 0.382) 0,
@@ -55,8 +82,6 @@
         rgba(0, 195, 216, 0.382) 12px
     );
 }
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 .-neonscope-foreground-image {
     box-shadow:
