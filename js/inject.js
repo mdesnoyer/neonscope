@@ -6,6 +6,8 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     var _self = this,
         _observer,
+        _aid,
+        _winningSelector,
         FADE_TIME = 500,
         AUTH_BASE = 'https://cmsapiauth-592139807.us-east-1.elb.amazonaws.com/api/v2/',
         API_BASE = 'http://services.neon-lab.com/api/v2/',
@@ -20,12 +22,6 @@ var ACCELERATOR = ACCELERATOR || (function() {
             TID: 'data-neonscope-tid',
             CAROUSEL_TOGGLE: 'data-neonscope-carousel-toggle'
         },
-        SELECTORS = {
-            FOREGROUND: 'img[src*="' + BASE_URL + '"], img[data-original*="' + BASE_URL + '"]',
-            BACKGROUND: '*[style*="' + BASE_URL + '"], *[data-background-image*="' + BASE_URL + '"]',
-            MID: '*[' + ATTRIBUTES.MID + ']',
-            PID: '*[' + ATTRIBUTES.PID + ']'
-        },
         TYPES = {
             FOREGROUND: 'foreground',
             BACKGROUND: 'background'
@@ -37,6 +33,16 @@ var ACCELERATOR = ACCELERATOR || (function() {
         STATES = {
             ON: 'on',
             OFF: 'off'
+        },
+        SELECTORS = {
+            FOREGROUND: 'img[src*="' + BASE_URL + '"], img[data-original*="' + BASE_URL + '"]',
+            BACKGROUND: '*[style*="' + BASE_URL + '"], *[data-background-image*="' + BASE_URL + '"]',
+            MID: '*[' + ATTRIBUTES.MID + ']',
+            PID: '*[' + ATTRIBUTES.PID + ']',
+            // {{ winning_selector }} is replaced laters
+            WINNING_FOREGROUND: 'img[src*="{{ winning_selector }}"]', 
+            WINNING_BACKGROUND: '*[style*="{{ winning_selector }}"]',
+            WINNING_MASK: CLASSES.BASE + 'winning-mask'
         }
     ;
 
@@ -86,6 +92,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
         }
         _toggleHandlers(false, accessToken);
         _aid = undefined;
+        _winningSelector = undefined;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,6 +117,21 @@ var ACCELERATOR = ACCELERATOR || (function() {
         parser.href = particleURL;
         var match = pattern.exec(parser.pathname); 
         return match[1]; // 0 is the whole match
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function _generateWinningMask($shell) {
+        console.log('_generateWinningMask');
+        $('<div />')
+            .offset($shell.offset())
+            .width($shell.outerWidth())
+            .height($shell.outerHeight())
+            .addClass(CLASSES.BASE + 'mask')
+            .addClass(SELECTORS.WINNING_MASK)
+            .fadeIn(FADE_TIME)
+            .appendTo($ROOT_ELEMENT)
+        ;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,10 +300,12 @@ var ACCELERATOR = ACCELERATOR || (function() {
         console.log('_releaseParticles');
         var $neonMasks = $root.find(SELECTORS.MID),
             $neonParticles = $root.find(SELECTORS.PID),
+            $neonWinningMasks = $root.find('.' + SELECTORS.WINNING_MASK)
             particles = {}
         ;
         $neonMasks.remove();
         $neonParticles.removeAttr(ATTRIBUTES.PID);
+        $neonWinningMasks.remove();
         return particles;
     }
 
@@ -291,8 +315,18 @@ var ACCELERATOR = ACCELERATOR || (function() {
         console.log('_captureParticles');
         var $neonImages = $root.find(SELECTORS.FOREGROUND),
             $neonBackgroundImages = $root.find(SELECTORS.BACKGROUND),
+            $neonForegroundWinningImages = $root.find(SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _winningSelector)),
+            $neonBackgroundWinningImages = $root.find(SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _winningSelector)),
             particles = {}
         ;
+        $neonForegroundWinningImages.each(function() {
+            var $shell = $(this);
+            _generateWinningMask($shell);
+        });
+        $neonBackgroundWinningImages.each(function() {
+            var $shell = $(this);
+            _generateWinningMask($shell);
+        });
         $neonImages.each(function() {
             var $shell = $(this),
                 particleURL = _getParticleURL($shell),
@@ -407,8 +441,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 _unwatch(accessToken);
             }
             else {
-                particles = _captureParticles($ROOT_ELEMENT);
-                _watch(accessToken);
+                chrome.storage.sync.get({ neonscopeWinningSelector: '' }, function(items) {
+                    _winningSelector = items.neonscopeWinningSelector;
+                    particles = _captureParticles($ROOT_ELEMENT);
+                    _watch(accessToken);
+                });
             }
             return {
                 particles: particles
