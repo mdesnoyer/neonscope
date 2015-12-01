@@ -9,7 +9,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
         _aid,
         _winningSelector,
         FADE_TIME = 500,
-        AUTH_BASE = 'https://cmsapiauth-592139807.us-east-1.elb.amazonaws.com/api/v2/',
+        AUTH_BASE = 'https://auth.neon-lab.com/api/v2/',
         API_BASE = 'http://services.neon-lab.com/api/v2/',
         ROOT_ELEMENT = 'body',
         $ROOT_ELEMENT = $(ROOT_ELEMENT),
