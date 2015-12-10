@@ -1,0 +1,54 @@
+
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<style>
+		div {
+			font-size: 10px;
+			width: 200px;
+			height: 200px;
+			background-position: 50%;
+			background-size: cover;
+			border: 1px solid #808080;
+			display: block;
+			margin-bottom: 1em;
+			margin-right: 1em;
+			float: left;
+		}
+	</style>
+<script>
+
+	var neonReplacements = {
+	    'http://a405.idata.over-blog.com/425x385/4/03/48/76/Bill-Bixby/5618a.jpg': 'http://i.huffpost.com/gadgets/slideshows/335270/slide_335270_3371327_free.jpg',
+	    'http://cdn1-www.craveonline.com/assets/uploads/2015/04/bruce-banner-im-always-angry-avengers-e1429856828553.png': 'http://images-cdn.moviepilot.com/image/upload/c_fill,h_907,w_1536/t_mp_quality/hulktop-planet-hulk-or-is-bruce-banner-heading-for-civil-war-jpeg-244706.jpg',
+	    'http://static.srcdn.com/slir/w570-h371-q90-c570:371/wp-content/uploads/iron-man-2-edward-norton-bruce-banner.jpg': 'http://www.wired.com/images_blogs/underwire/images/2008/05/27/hulk660_2.jpg'
+	};
+
+	function neonTransform(neonReplacements) {
+		for (var key in neonReplacements) {
+			var value = neonReplacements[key],
+				$match = $('*[style*="' + key + '"]')
+			;
+			// because of Optimizely restriction we can't use .each and look
+			// for ALL occurences so for now we assume one instance
+			$match.css('background-image', 'url(' + value + ')');
+		}
+	}
+
+	// Entry point
+	$(function() {
+		$('#hulk').on('click', function() {
+			neonTransform(neonReplacements);
+		});
+		
+	});
+	
+</script>
+</head>
+<body>
+
+	<div style="background-image: url('http://a405.idata.over-blog.com/425x385/4/03/48/76/Bill-Bixby/5618a.jpg');"></div>
+	<div style="background-image: url('http://static.srcdn.com/slir/w570-h371-q90-c570:371/wp-content/uploads/iron-man-2-edward-norton-bruce-banner.jpg');"></div>
+	<div style="background-image: url('http://cdn.pastemagazine.com/www/articles/pee-wee-herman.jpg');"></div>
+	<div style="background-image: url('http://cdn1-www.craveonline.com/assets/uploads/2015/04/bruce-banner-im-always-angry-avengers-e1429856828553.png');"></div>
+	<button id="hulk">Hulk</button>
+</body>
