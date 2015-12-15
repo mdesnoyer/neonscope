@@ -79,9 +79,6 @@ var ACCELERATOR = ACCELERATOR || (function() {
         });
         _observer.observe(document.querySelector(ROOT_ELEMENT), { childList: true, subtree: true });
         _toggleHandlers(true, accessToken);
-        chrome.storage.sync.get({ neonscopeAid: '' }, function(items) {
-            _aid = items.neonscopeAid;
-        });
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -385,9 +382,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
         loginRequest: function(args) {
             console.log('loginRequest');
-            chrome.storage.sync.get({ neonscopeUsername: '', neonscopePassword: '' }, function(items) {
+            chrome.storage.sync.get({ neonscopeUsername: '', neonscopePassword: '', neonscopeAid: '', neonscopeWinningSelector: '' }, function(items) {
                 var username = items.neonscopeUsername,
                     password = items.neonscopePassword,
+                    _winningSelector = items.neonscopeWinningSelector,
+                    _aid = items.neonscopeAid,
                     assembled_url = AUTH_BASE + 'authenticate?username=' + username + '&password=' + password
                 ;
                 $.ajax({
@@ -441,11 +440,8 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 _unwatch(accessToken);
             }
             else {
-                chrome.storage.sync.get({ neonscopeWinningSelector: '' }, function(items) {
-                    _winningSelector = items.neonscopeWinningSelector;
-                    particles = _captureParticles($ROOT_ELEMENT);
-                    _watch(accessToken);
-                });
+                particles = _captureParticles($ROOT_ELEMENT);
+                _watch(accessToken);
             }
             return {
                 particles: particles
