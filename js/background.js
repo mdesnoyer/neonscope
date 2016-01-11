@@ -6,7 +6,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // Constants
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    var PROCESS_PARTICLES_INTERVAL_MS = 10000, // 10s
+    var PROCESS_PARTICLES_INTERVAL_MS = 10000, // 10 seconds
         REFRESH_TOKEN_INTERVAL_MS = 1000 * 60 * 10, // 10 minutes
         JAVASCRIPT = 'js/inject.js',
         JQUERY = 'js/lib/jquery-2.1.4.min.js',
@@ -35,14 +35,14 @@ var NEONSCOPE = NEONSCOPE || (function() {
 
     function _getParticleCount() {
         var returnValue = Object.keys(_particles).length;
-        console.log('_getParticleCount: ' + returnValue);
+        beacon('_getParticleCount: ' + returnValue);
         return returnValue;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _setIcon(icon) {
-        console.log('_setIcon: ' + icon);
+        beacon('_setIcon: ' + icon);
         chrome.browserAction.setIcon({
             path: 'icons/icon-' + icon + '.png'
         });
@@ -51,14 +51,14 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     function _setIconCount() {
-        console.log('_setIconCount');
+        beacon('_setIconCount');
         _setIconText(_getParticleCount().toString());
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     function _setIconText(text) {
-        console.log('_setIconText: ' + text);
+        beacon('_setIconText: ' + text);
         chrome.browserAction.setBadgeText({
             text: text
         });
@@ -67,7 +67,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _injectedMethod(method, args, callback) {
-        console.log('_injectedMethod: ' + method);
+        beacon('_injectedMethod: ' + method);
         if (_tabLockId === undefined) {
             debugger;
         }
@@ -81,7 +81,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _setExtensionState(state) {
-        console.log('_setExtensionState: ' + state);
+        beacon('_setExtensionState: ' + state);
         _state = state;
         switch (state) {
             case EXTENSION_STATES.DEAD:
@@ -121,7 +121,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _clickIcon(tab) {
-        console.log('_clickIcon');
+        beacon('_clickIcon');
         switch (_state) {
             case EXTENSION_STATES.DEAD:
                 _tabLockId = tab.id;
@@ -139,7 +139,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _tabChanged(tabId, selectInfo) {
-        console.log('_tabChanged: tabId=' + tabId + ', _tabLockId=' + _tabLockId);
+        beacon('_tabChanged: tabId=' + tabId + ', _tabLockId=' + _tabLockId);
         if (_tabLockId !== undefined) {
             _setExtensionState(EXTENSION_STATES.DEAD);
         }
@@ -148,7 +148,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _tabUpdated(tabId, changeInfo, tab) {
-        console.log('tabUpdated: status=' + changeInfo.status + ', tabId=' + tabId);
+        beacon('tabUpdated: status=' + changeInfo.status + ', tabId=' + tabId);
         if (changeInfo.status === 'complete' && tab.active && tabId === _tabLockId) {
             _setExtensionState(EXTENSION_STATES.PULSE);
         }
@@ -158,7 +158,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
 
     function _onMessage(request, sender, sendResponse) {
 
-        console.log('onMessage: ' + request.method);
+        beacon('onMessage: ' + request.method);
         
         switch (request.method) {
             case 'newParticles':
@@ -185,11 +185,11 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _processParticles() {
-        console.log('processParticles');
+        beacon('processParticles');
         for (var key in _particles) {
             if (_particles.hasOwnProperty(key)) {
                 var vid = _particles[key].vid;
-                console.log(_particles[key].state);
+                beacon(_particles[key].state);
                 switch (_particles[key].state) {
                     case RIPENESS_STATE.RAW:
                         _injectedMethod('pushRipenessState', { vid: vid, state: RIPENESS_STATE.FRESH }, function(injectedResponse) {
@@ -230,11 +230,11 @@ var NEONSCOPE = NEONSCOPE || (function() {
 
     return {
         bootstrap: function() {
-            console.log('bootstrap');
+            beacon('bootstrap');
             chrome.browserAction.onClicked.addListener(_clickIcon);
             chrome.tabs.onActiveChanged.addListener(_tabChanged);
             chrome.tabs.onUpdated.addListener(_tabUpdated);
-            chrome.runtime.onMessage.addListener(_onMessage);                
+            chrome.runtime.onMessage.addListener(_onMessage);
         }
     };
 })();

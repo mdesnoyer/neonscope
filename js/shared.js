@@ -9,3 +9,9 @@ var RIPENESS_STATE = {
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+var beacon = function(s) {
+	console.log('[neonscope]', s);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

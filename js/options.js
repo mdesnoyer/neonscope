@@ -1,16 +1,16 @@
 function saveOptions() {
     var username = document.getElementById('username').value,
         password = document.getElementById('password').value,
-        aid = document.getElementById('aid').value,
-        winningSelector = document.getElementById('winning-selector').value
+        accountId = document.getElementById('accountId').value,
+        winningSelector = document.getElementById('winningSelector').value
     ;
     chrome.storage.sync.set({
         neonscopeUsername: username,
         neonscopePassword: password,
-        neonscopeAid: aid,
+        neonscopeAccountId: accountId,
         neonscopeWinningSelector: winningSelector
     }, function() {
-        
+        // empty
     });
 }
 
@@ -20,13 +20,13 @@ function restoreOptions() {
     chrome.storage.sync.get({
         neonscopeUsername: '',
         neonscopePassword: '',
-        neonscopeAid: '',
+        neonscopeAccountId: '',
         neonscopeWinningSelector: ''
     }, function(items) {
         document.getElementById('username').value = items.neonscopeUsername;
         document.getElementById('password').value = items.neonscopePassword;
-        document.getElementById('aid').value = items.neonscopeAid;
-        document.getElementById('winning-selector').value = items.neonscopeWinningSelector;
+        document.getElementById('accountId').value = items.neonscopeAccountId;
+        document.getElementById('winningSelector').value = items.neonscopeWinningSelector;
     });
 }
 
