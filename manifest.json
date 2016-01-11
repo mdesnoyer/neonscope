@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Neonscope",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Show the Neon served images on any web page",
     "options_ui": {
         "page": "options.html",
@@ -13,6 +13,7 @@
     },
     "background": {
         "scripts": [
+            "js/lib/jquery-2.2.0.min.js",
             "js/shared.js",
             "js/background.js"
         ],

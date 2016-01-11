@@ -2,48 +2,11 @@
 
 var ACCELERATOR = ACCELERATOR || (function() {
 
-    // Private
-
     var _self = this,
         _observer,
         _accountId,
         _winningSelector,
-        FADE_TIME = 500,
-        AUTH_BASE = 'https://auth.neon-lab.com/api/v2/',
-        API_BASE = 'http://services.neon-lab.com/api/v2/',
-        ROOT_ELEMENT = 'body',
-        $ROOT_ELEMENT = $(ROOT_ELEMENT),
-        BASE_URL = 'neon-images.com',
-        VID_REGULAR_EXPRESSION = "neonvid_(.*)[.]",
-        ATTRIBUTES = {
-            MID: 'data-neonscope-mid',
-            PID: 'data-neonscope-pid',
-            VID: 'data-neonscope-vid',
-            TID: 'data-neonscope-tid',
-            CAROUSEL_TOGGLE: 'data-neonscope-carousel-toggle'
-        },
-        TYPES = {
-            FOREGROUND: 'foreground',
-            BACKGROUND: 'background'
-        },
-        CLASSES = {
-            BASE: 'neonscope-',
-            HERO: '-hero'
-        },
-        STATES = {
-            ON: 'on',
-            OFF: 'off'
-        },
-        SELECTORS = {
-            FOREGROUND: 'img[src*="' + BASE_URL + '"], img[data-original*="' + BASE_URL + '"]',
-            BACKGROUND: '*[style*="' + BASE_URL + '"], *[data-background-image*="' + BASE_URL + '"]',
-            MID: '*[' + ATTRIBUTES.MID + ']',
-            PID: '*[' + ATTRIBUTES.PID + ']',
-            // {{ winning_selector }} is replaced laters
-            WINNING_FOREGROUND: 'img[src*="{{ winning_selector }}"]',
-            WINNING_BACKGROUND: '*[style*="{{ winning_selector }}"]',
-            WINNING_MASK: CLASSES.BASE + 'winning-mask'
-        }
+        $ROOT_ELEMENT = $(ROOT_ELEMENT)
     ;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,15 +14,18 @@ var ACCELERATOR = ACCELERATOR || (function() {
     function _watch(accessToken) {
         beacon('_watch');
         _self._observer = _self._observer || new MutationObserver(function(mutations) {
-            mutations.forEach(function( mutation ) {
+            mutations.forEach(function(mutation) {
                 var addedNodes = mutation.addedNodes;
                 if (addedNodes) {
                     var $addedNodes = $(addedNodes);
                     $addedNodes.each(function() {
                         beacon('addedNode');
                         var $shell = $(this);
-                        beacon($shell);
-                        if ($shell.hasClass('neonscope-thumbnail')) {
+                        if (
+                            $shell.hasClass(CLASSES.BASE + 'thumbnail')
+                            || $shell.hasClass(CLASSES.BASE + 'ripeness')
+                            || $shell[0].nodeType === TEXT_NODE
+                        ) {
                             // ignore
                             beacon('Ignoring');
                         }
@@ -93,7 +59,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _markParticle($particle, vid) {
-        $particle.attr(ATTRIBUTES.PID, vid);
+        $particle.attr(HTML_ATTRIBUTES.PID, vid);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -123,7 +89,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
             .width($shell.outerWidth())
             .height($shell.outerHeight())
             .addClass(CLASSES.BASE + 'mask')
-            .addClass(SELECTORS.WINNING_MASK)
+            .addClass(JQUERY_SELECTORS.WINNING_MASK)
             .fadeIn(FADE_TIME)
             .appendTo($ROOT_ELEMENT)
         ;
@@ -152,11 +118,36 @@ var ACCELERATOR = ACCELERATOR || (function() {
             .addClass(CLASSES.BASE + 'mask')
             .addClass(extraClass)
             .fadeIn(FADE_TIME)
-            .attr(ATTRIBUTES.MID, vid)
-            .attr(ATTRIBUTES.CAROUSEL_TOGGLE, STATES.OFF)
+            .attr(HTML_ATTRIBUTES.MID, vid)
+            .attr(HTML_ATTRIBUTES.RIPENESS, RIPENESS_STATE.RAW)
+            .attr(HTML_ATTRIBUTES.CAROUSEL_TOGGLE, CAROUSEL_STATE.OFF)
             .appendTo($ROOT_ELEMENT)
             .html(htmlString)
         ;
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function formatModelScore(score) {
+        return score ? parseFloat(Math.round(score * 100) / 100).toFixed(2) : 'n/a';
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function formatNeonscopePercentage(num, decimalPlaces) {
+        return num ? (parseFloat(num) * 100).toFixed(decimalPlaces) : 'n/a';
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function formatCTR(ctr) {
+        return formatNeonscopePercentage(ctr, 2);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function formatServingFrac(servingFrac) {
+        return formatNeonscopePercentage(servingFrac, 2);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -180,10 +171,12 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 ;
                 $.each(data.videos[0].thumbnails, function(i, thumb) {
                     if (thumb.type !== 'random' && thumb.type !== 'centerframe') {
-                        htmlString += '<li style="background-image: url(' + thumb.urls[0] + ');" class="' + CLASSES.BASE + 'thumbnail' + (htmlString === '' ? ' ' + CLASSES.HERO : '') + ' enabled-' + thumb.enabled + '" data-enabled="' + thumb.enabled + '">';
-                        htmlString += '    <span class="neonscope-enabled"></span>';
-                        htmlString += '    <span class="neonscope-paging">' + count + ' of {{ total }}</span>';
-                        htmlString += '    <span class="neonscope-score">' + (thumb.model_score ? parseFloat(Math.round(thumb.model_score * 100) / 100).toFixed(2) : 'n/a') + '</span>';
+                        htmlString += '<li data-key="' + i + '" style="background-image: url(' + thumb.urls[0] + ');" class="' + CLASSES.BASE + 'thumbnail' + (htmlString === '' ? ' ' + CLASSES.HERO : '') + ' enabled-' + thumb.enabled + '" data-enabled="' + thumb.enabled + '">';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'enabled"></span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'paging">' + count + ' of {{ total }}</span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'score" title="Model Score">' + formatModelScore(thumb.model_score) + '</span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'serving-frac" title="Serving Fraction"></span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'ctr" title="Click-through rate"></span>';
                         htmlString += '</li>';
                         count++;
                     }
@@ -199,7 +192,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
             error: function(qXHR, textStatus, errorThrown) {
                 beacon('error');
                 $thumbnails.fadeIn(FADE_TIME);
-            },
+            }
         });
     }
 
@@ -213,13 +206,13 @@ var ACCELERATOR = ACCELERATOR || (function() {
             $ROOT_ELEMENT.on('click', '.' + CLASSES.BASE + 'settings', function(e) {
                 var $shell = $(this),
                     $mask = $shell.closest('.' + CLASSES.BASE + 'mask'),
-                    vid = $mask.attr(ATTRIBUTES.MID),
+                    vid = $mask.attr(HTML_ATTRIBUTES.MID),
                     $carousel = $mask.find('.' + CLASSES.BASE + 'outer-carousel'),
                     $thumbnails = $mask.find('.' + CLASSES.BASE + 'thumbnails'),
                     $nav = $mask.find('.' + CLASSES.BASE + 'nav')
                 ;
-                if ($mask.attr(ATTRIBUTES.CAROUSEL_TOGGLE) === STATES.ON) {
-                    $mask.attr(ATTRIBUTES.CAROUSEL_TOGGLE, STATES.OFF);
+                if ($mask.attr(HTML_ATTRIBUTES.CAROUSEL_TOGGLE) === CAROUSEL_STATE.ON) {
+                    $mask.attr(HTML_ATTRIBUTES.CAROUSEL_TOGGLE, CAROUSEL_STATE.OFF);
                     $nav.fadeOut(FADE_TIME, function() {
                         $thumbnails.fadeOut(FADE_TIME, function() {
                             $carousel.fadeOut(FADE_TIME, function() {
@@ -229,7 +222,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                     });
                 }
                 else {
-                    $mask.attr(ATTRIBUTES.CAROUSEL_TOGGLE, STATES.ON);
+                    $mask.attr(HTML_ATTRIBUTES.CAROUSEL_TOGGLE, CAROUSEL_STATE.ON);
                     $carousel.fadeIn(FADE_TIME);
                     _getThumbnails(vid, $thumbnails, $nav, accessToken);
                 }
@@ -297,13 +290,13 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     function _releaseParticles($root) {
         beacon('_releaseParticles');
-        var $neonMasks = $root.find(SELECTORS.MID),
-            $neonParticles = $root.find(SELECTORS.PID),
-            $neonWinningMasks = $root.find('.' + SELECTORS.WINNING_MASK)
+        var $neonMasks = $root.find(JQUERY_SELECTORS.MID),
+            $neonParticles = $root.find(JQUERY_SELECTORS.PID),
+            $neonWinningMasks = $root.find('.' + JQUERY_SELECTORS.WINNING_MASK)
             particles = {}
         ;
         $neonMasks.remove();
-        $neonParticles.removeAttr(ATTRIBUTES.PID);
+        $neonParticles.removeAttr(HTML_ATTRIBUTES.PID);
         $neonWinningMasks.remove();
         return particles;
     }
@@ -312,10 +305,10 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     function _captureParticles($root) {
         beacon('_captureParticles');
-        var $neonImages = $root.find(SELECTORS.FOREGROUND),
-            $neonBackgroundImages = $root.find(SELECTORS.BACKGROUND),
-            $neonForegroundWinningImages = $root.find(SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
-            $neonBackgroundWinningImages = $root.find(SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
+        var $neonImages = $root.find(JQUERY_SELECTORS.FOREGROUND),
+            $neonBackgroundImages = $root.find(JQUERY_SELECTORS.BACKGROUND),
+            $neonForegroundWinningImages = $root.find(JQUERY_SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
+            $neonBackgroundWinningImages = $root.find(JQUERY_SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
             particles = {}
         ;
         $neonForegroundWinningImages.each(function() {
@@ -335,13 +328,13 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 _generateMask($shell, vid, '-' + CLASSES.BASE + TYPES.FOREGROUND + '-image');    
                 _markParticle($shell, vid);
                 particles[vid] = {
+                    vid: vid,
                     url: particleURL,
                     type: TYPES.FOREGROUND,
                     state: RIPENESS_STATE.RAW,
-                    vid: vid
+                    thumbnails: {}
                 };
             }
-            
         });
         $neonBackgroundImages.each(function() {
             var $shell = $(this),
@@ -352,10 +345,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 _generateMask($shell, vid, '-' + CLASSES.BASE + TYPES.BACKGROUND + '-image');
                 _markParticle($shell, vid);
                 particles[vid] = {
+                    vid: vid,
                     url: particleURL,
                     type: TYPES.BACKGROUND,
                     state: RIPENESS_STATE.RAW,
-                    vid: vid
+                    thumbnails: {}
                 };
             }
         });
@@ -366,20 +360,35 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     return {
 
-        // Public
-
-        pushRipenessState: function(args) {
-            var state = args.state,
-                vid = args.vid,
-                $masks = $('*[' + ATTRIBUTES.MID + '="' + vid + '"]')
+        pushParticleRipenessState: function(args) {
+            var particle = args.particle,
+                vid = particle.vid
             ;
+            var $masks = $('*[' + HTML_ATTRIBUTES.MID + '="' + particle.vid + '"]');
             $masks.each(function() {
                 var $shell = $(this);
-                $shell.find('.' + CLASSES.BASE + 'ripeness').text(state);
+                $shell.find('.' + CLASSES.BASE + 'ripeness').text(particle.state);
+                $shell.attr(HTML_ATTRIBUTES.RIPENESS, particle.state);
+                if (particle.state === RIPENESS_STATE.COOKED) {
+                    var $thumbnails = $shell.find('.' + CLASSES.BASE + 'thumbnail');
+                    $thumbnails.each(function() {
+                        var $shell = $(this),
+                            key = $shell.attr('data-key'),
+                            ctr = formatCTR(particle.statistics[key].ctr),
+                            servingFrac = formatServingFrac(particle.statistics[key].serving_frac)
+                        ;
+                        $shell.find('.' + CLASSES.BASE + 'ctr').fadeOut(FADE_TIME, function() {
+                            var $shell = $(this);
+                            $shell.text(ctr).fadeIn(FADE_TIME); 
+                        });
+                        $shell.find('.' + CLASSES.BASE + 'serving-frac').fadeOut(FADE_TIME, function() {
+                            var $shell = $(this);
+                            $shell.text(servingFrac).fadeIn(FADE_TIME);
+                        });
+                    });
+                }
             });
-            return {
-                vid: vid
-            }
+            return false;
         },
 
         loginRequest: function(args) {
@@ -459,7 +468,6 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-beacon('entry point');
 ACCELERATOR.init();
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
