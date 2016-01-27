@@ -6,7 +6,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     var _self = this,
         _observer,
-        _aid,
+        _accountId,
         _winningSelector,
         FADE_TIME = 500,
         AUTH_BASE = 'https://auth.neon-lab.com/api/v2/',
@@ -40,7 +40,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
             MID: '*[' + ATTRIBUTES.MID + ']',
             PID: '*[' + ATTRIBUTES.PID + ']',
             // {{ winning_selector }} is replaced laters
-            WINNING_FOREGROUND: 'img[src*="{{ winning_selector }}"]', 
+            WINNING_FOREGROUND: 'img[src*="{{ winning_selector }}"]',
             WINNING_BACKGROUND: '*[style*="{{ winning_selector }}"]',
             WINNING_MASK: CLASSES.BASE + 'winning-mask'
         }
@@ -49,47 +49,45 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _watch(accessToken) {
-        console.log('_watch');
-        _observer = _observer || new MutationObserver(function( mutations ) {
+        beacon('_watch');
+        _self._observer = _self._observer || new MutationObserver(function(mutations) {
             mutations.forEach(function( mutation ) {
                 var addedNodes = mutation.addedNodes;
                 if (addedNodes) {
                     var $addedNodes = $(addedNodes);
                     $addedNodes.each(function() {
-                        console.log('addedNode');
+                        beacon('addedNode');
                         var $shell = $(this);
-                        console.log($shell);
+                        beacon($shell);
                         if ($shell.hasClass('neonscope-thumbnail')) {
-                            // ignore 
-                            console.log('Ignoring');
+                            // ignore
+                            beacon('Ignoring');
                         }
                         else {
                             var addedParticles = _captureParticles($shell);
                             if (Object.keys(addedParticles).length > 0) {
-                                console.log('Sending particles');
+                                beacon('Sending particles');
                                 chrome.runtime.sendMessage({ method: 'newParticles', data: addedParticles });
                             }
                             else {
-                                console.log('Found no particles');
+                                beacon('Found no particles');
                             }
                         }
                     });
                 }
-            });    
+            });
         });
-        _observer.observe(document.querySelector(ROOT_ELEMENT), { childList: true, subtree: true });
+        _self._observer.observe(document.querySelector(ROOT_ELEMENT), { childList: true, subtree: true });
         _toggleHandlers(true, accessToken);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _unwatch(accessToken) {
-        if (_observer !== undefined) {
-            _observer.disconnect();
+        if (_self._observer !== undefined) {
+            _self._observer.disconnect();
         }
         _toggleHandlers(false, accessToken);
-        _aid = undefined;
-        _winningSelector = undefined;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -112,14 +110,14 @@ var ACCELERATOR = ACCELERATOR || (function() {
             pattern = new RegExp(VID_REGULAR_EXPRESSION)
         ;
         parser.href = particleURL;
-        var match = pattern.exec(parser.pathname); 
+        var match = pattern.exec(parser.pathname);
         return match[1]; // 0 is the whole match
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _generateWinningMask($shell) {
-        console.log('_generateWinningMask');
+        beacon('_generateWinningMask');
         $('<div />')
             .offset($shell.offset())
             .width($shell.outerWidth())
@@ -134,7 +132,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _generateMask($shell, vid, extraClass) {
-        console.log('_generateMask');
+        beacon('_generateMask');
         var htmlString = '';
         htmlString += '<div class="' + CLASSES.BASE + 'outer-carousel">';
         htmlString += '    <div class="' + CLASSES.BASE + 'inner-carousel">';
@@ -159,20 +157,24 @@ var ACCELERATOR = ACCELERATOR || (function() {
             .appendTo($ROOT_ELEMENT)
             .html(htmlString)
         ;
-    }     
+    }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _getThumbnails(vid, $thumbnails, $nav, accessToken) {
-        var assembled_url = API_BASE + _aid + '/videos?video_id=' + vid + '&fields=thumbnails&token=' + accessToken;
+        if (_self._accountId === undefined) {
+            debugger;
+        }
+        var assembled_url = API_BASE + _self._accountId + '/videos?video_id=' + vid + '&fields=thumbnails&token=' + accessToken;
+        beacon('Hitting URL: ' + assembled_url);
         $.ajax({
             crossDomain: true,
-            url: assembled_url, 
+            url: assembled_url,
             type: 'GET',
             dataType: 'json',
             jsonp: false,
             success: function(data, textStatus, jqXHR) {
-                console.log('success');
+                beacon('success');
                 var htmlString = '',
                     count = 1
                 ;
@@ -186,7 +188,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                         count++;
                     }
                     else {
-                        console.log('Ignoring ' + thumb.type);
+                        beacon('Ignoring ' + thumb.type);
                     }
                 });
                 $thumbnails.html(htmlString.replace(/{{ total }}/g, count - 1));
@@ -195,7 +197,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 });
             },
             error: function(qXHR, textStatus, errorThrown) {
-                console.log('error');
+                beacon('error');
                 $thumbnails.fadeIn(FADE_TIME);
             },
         });
@@ -204,7 +206,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _toggleHandlers(flag, accessToken) {
-        console.log('_toggleHandlers');
+        beacon('_toggleHandlers');
         if (flag) {
 
             // 1
@@ -294,7 +296,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _releaseParticles($root) {
-        console.log('_releaseParticles');
+        beacon('_releaseParticles');
         var $neonMasks = $root.find(SELECTORS.MID),
             $neonParticles = $root.find(SELECTORS.PID),
             $neonWinningMasks = $root.find('.' + SELECTORS.WINNING_MASK)
@@ -309,11 +311,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _captureParticles($root) {
-        console.log('_captureParticles');
+        beacon('_captureParticles');
         var $neonImages = $root.find(SELECTORS.FOREGROUND),
             $neonBackgroundImages = $root.find(SELECTORS.BACKGROUND),
-            $neonForegroundWinningImages = $root.find(SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _winningSelector)),
-            $neonBackgroundWinningImages = $root.find(SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _winningSelector)),
+            $neonForegroundWinningImages = $root.find(SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
+            $neonBackgroundWinningImages = $root.find(SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
             particles = {}
         ;
         $neonForegroundWinningImages.each(function() {
@@ -381,19 +383,20 @@ var ACCELERATOR = ACCELERATOR || (function() {
         },
 
         loginRequest: function(args) {
-            console.log('loginRequest');
-            chrome.storage.sync.get({ neonscopeUsername: '', neonscopePassword: '', neonscopeAid: '', neonscopeWinningSelector: '' }, function(items) {
+            beacon('loginRequest');
+            chrome.storage.sync.get({ neonscopeUsername: '', neonscopePassword: '', neonscopeAccountId: '', neonscopeWinningSelector: '' }, function(items) {
                 var username = items.neonscopeUsername,
                     password = items.neonscopePassword,
-                    _winningSelector = items.neonscopeWinningSelector,
-                    _aid = items.neonscopeAid,
                     assembled_url = AUTH_BASE + 'authenticate?username=' + username + '&password=' + password
                 ;
+                _self._winningSelector = items.neonscopeWinningSelector;
+                _self._accountId = items.neonscopeAccountId;
+                beacon('Hitting URL: ' + assembled_url);
                 $.ajax({
                     url: assembled_url,
                     type: 'POST',
                     success: function(data, textStatus, jqXHR) {
-                        console.log('success');
+                        beacon('success');
                         loginResponse = {
                             accessToken: data.access_token,
                             refreshToken: data.refresh_token,
@@ -402,7 +405,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                         chrome.runtime.sendMessage({ method: 'loginResponse', data: loginResponse });
                     },
                     error: function(qXHR, textStatus, errorThrown) {
-                        console.log('error');
+                        beacon('error');
                         loginResponse = {
                             accessToken: '',
                             refreshToken: '',
@@ -415,9 +418,9 @@ var ACCELERATOR = ACCELERATOR || (function() {
         },
 
         init: function() {
-            console.log('init');
+            beacon('init');
             if (!chrome.runtime.onMessage.hasListeners()) {
-                console.log('listening');
+                beacon('listening');
                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     var data = {};
                     if (ACCELERATOR.hasOwnProperty(request.method)) {
@@ -430,7 +433,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
         },
 
         render: function(args) {
-            console.log('render');
+            beacon('render');
             var particles = {},
                 power = args.power,
                 accessToken = args.accessToken
@@ -456,7 +459,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-console.log('entry point');
+beacon('entry point');
 ACCELERATOR.init();
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
