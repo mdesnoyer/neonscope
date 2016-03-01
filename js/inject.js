@@ -89,7 +89,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
             .width($shell.outerWidth())
             .height($shell.outerHeight())
             .addClass(CLASSES.BASE + 'mask')
-            .addClass(JQUERY_SELECTORS.WINNING_MASK)
+            .addClass(ELEMENT_SELECTORS.WINNING_MASK)
             .fadeIn(FADE_TIME)
             .appendTo($ROOT_ELEMENT)
         ;
@@ -97,21 +97,31 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    function _renderCarousel($container, args) {
+        beacon('_renderCarousel');
+        var result = '';
+        $.get('template/mask.mst', function(template) {
+            var rendered = Mustache.render(template, args);
+            $container.html(rendered);
+        });
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function _renderThumbnail($container, args) {
+        beacon('_renderThumbnail');
+        var result = '';
+        $.get('template/thumbnail.mst', function(template) {
+            var rendered = Mustache.render(template, args);
+            $container.append(rendered);
+        });
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     function _generateMask($shell, vid, extraClass) {
         beacon('_generateMask');
-        var htmlString = '';
-        htmlString += '<div class="' + CLASSES.BASE + 'outer-carousel">';
-        htmlString += '    <div class="' + CLASSES.BASE + 'inner-carousel">';
-        htmlString += '        <ol class="' + CLASSES.BASE + 'thumbnails">';
-        htmlString += '        </ol>';
-        htmlString += '        <nav class="' + CLASSES.BASE + 'nav ' + CLASSES.BASE + 'nav-prev">&#10142;</nav>';
-        htmlString += '        <nav class="' + CLASSES.BASE + 'nav ' + CLASSES.BASE + 'nav-next">&#10142;</nav>';
-        htmlString += '    </div>';
-        htmlString += '</div>';
-        htmlString += '<span class="' + CLASSES.BASE + 'ripeness">' + RIPENESS_STATE.RAW + '</span>';
-        htmlString += '<span class="' + CLASSES.BASE + 'settings">&#9881;</span>';
-
-        $('<div />')
+        var $newMask = $('<div />')
             .offset($shell.offset())
             .width($shell.outerWidth())
             .height($shell.outerHeight())
@@ -122,8 +132,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
             .attr(HTML_ATTRIBUTES.RIPENESS, RIPENESS_STATE.RAW)
             .attr(HTML_ATTRIBUTES.CAROUSEL_TOGGLE, CAROUSEL_STATE.OFF)
             .appendTo($ROOT_ELEMENT)
-            .html(htmlString)
         ;
+        _renderCarousel($newMask, {
+            baseClass: CLASSES.BASE,
+            initialRipenessState: RIPENESS_STATE.RAW
+        });
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -178,30 +191,36 @@ var ACCELERATOR = ACCELERATOR || (function() {
             success: function(data, textStatus, jqXHR) {
                 beacon('success');
                 var htmlString = '',
-                    count = 1
+                    count = 1,
+                    goodThumbnails = []
                 ;
+                // Quick look to work out what we need to check (and the real count)
                 $.each(data.videos[0].thumbnails, function(i, thumb) {
                     if (thumb.type !== 'random' && thumb.type !== 'centerframe') {
-                        var thumbUrl = thumb.urls ? (thumb.urls[0] ? thumb.urls[0] : '') : (thumb.url ? thumb.url : ''),
-                            thumbnailStatus = (thumb.enabled ? THUMBNAIL_STATE.ENABLED : THUMBNAIL_STATE.DISABLED)
-                        ;
-                        htmlString += '<li data-' + CLASSES.BASE + 'tid="' + thumb.thumbnail_id + '"';
-                        htmlString += ' data-' + CLASSES.BASE + 'key="' + i + '" style="background-image: url(' + thumbUrl + ');"';
-                        htmlString += ' class="' + CLASSES.BASE + 'thumbnail' + (count === 1 ? ' ' + CLASSES.HERO : '') + ' ' + CLASSES.BASE + 'thumbnail-status-' + thumbnailStatus + '"';
-                        htmlString += ' data-' + CLASSES.BASE + 'thumbnail-status="' + thumbnailStatus + '">';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'thumbnail-status"></span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'paging">' + count + ' of {{ total }}</span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'score" title="' + NEONSCORE_NAME + '">' + formatNeonScore(thumb.neon_score) + '</span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'serving-fraction" title="Serving Fraction"></span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'ctr" title="Click-through rate"></span>';
-                        htmlString += '</li>';
-                        count++;
+                        goodThumbnails.push(thumb);
                     }
                     else {
                         beacon('Ignoring ' + thumb.type);
                     }
                 });
-                $thumbnails.html(htmlString.replace(/{{ total }}/g, count - 1));
+                $.each(goodThumbnails, function(i, thumb) {
+                    var thumbnailUrl = thumb.url,
+                        thumbnailStatus = (thumb.enabled ? THUMBNAIL_STATE.ENABLED : THUMBNAIL_STATE.DISABLED)
+                    ;
+                    _renderThumbnail($thumbnails, {
+                        baseClass: CLASSES.BASE,
+                        thumbnailId: thumb.thumbnail_id,
+                        thumbType: thumb.type,
+                        i: i,
+                        thumbnailStatus: thumbnailStatus,
+                        thumbnailUrl: thumbnailUrl,
+                        heroClass: (count === 1 ? CLASSES.HERO : ''),
+                        count: count++,
+                        total: goodThumbnails.length,
+                        neonScoreName: NEONSCORE_NAME,
+                        neonScore: formatNeonScore(thumb.neon_score)
+                    });
+                });
                 $thumbnails.fadeIn(FADE_TIME, function() {
                     $nav.fadeIn(FADE_TIME);
                 });
@@ -333,9 +352,9 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     function _releaseParticles($root) {
         beacon('_releaseParticles');
-        var $neonMasks = $root.find(JQUERY_SELECTORS.MID),
-            $neonParticles = $root.find(JQUERY_SELECTORS.PID),
-            $neonWinningMasks = $root.find('.' + JQUERY_SELECTORS.WINNING_MASK)
+        var $neonMasks = $root.find(ELEMENT_SELECTORS.MID),
+            $neonParticles = $root.find(ELEMENT_SELECTORS.PID),
+            $neonWinningMasks = $root.find('.' + ELEMENT_SELECTORS.WINNING_MASK)
             particles = {}
         ;
         $neonMasks.remove();
@@ -348,10 +367,10 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     function _captureParticles($root) {
         beacon('_captureParticles');
-        var $neonImages = $root.find(JQUERY_SELECTORS.FOREGROUND),
-            $neonBackgroundImages = $root.find(JQUERY_SELECTORS.BACKGROUND),
-            $neonForegroundWinningImages = $root.find(JQUERY_SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
-            $neonBackgroundWinningImages = $root.find(JQUERY_SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
+        var $neonImages = $root.find(ELEMENT_SELECTORS.FOREGROUND),
+            $neonBackgroundImages = $root.find(ELEMENT_SELECTORS.BACKGROUND),
+            $neonForegroundWinningImages = $root.find(ELEMENT_SELECTORS.WINNING_FOREGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
+            $neonBackgroundWinningImages = $root.find(ELEMENT_SELECTORS.WINNING_BACKGROUND.replace(/{{ winning_selector }}/g, _self._winningSelector)),
             particles = {}
         ;
         $neonForegroundWinningImages.each(function() {

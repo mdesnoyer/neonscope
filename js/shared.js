@@ -6,8 +6,7 @@ var APP_NAME = 'neonscope',
     PROCESS_PARTICLES_INTERVAL_MS = 10000, // 10 seconds
     REFRESH_TOKEN_INTERVAL_MS = 1000 * 60 * 10, // 10 minutes
     SCRIPTS = {
-        INJECT: 'js/inject.js',
-        JQUERY: 'js/lib/jquery-2.2.0.min.js'
+        INJECT: 'js/inject.js'
     },
     EXTENSION_STATE = {
 	    DEAD: 'dead',
@@ -53,7 +52,7 @@ var APP_NAME = 'neonscope',
         RIPENESS: 'data-' + CLASSES.BASE + 'ripeness',
         CAROUSEL_TOGGLE: 'data-' + CLASSES.BASE + 'carousel-toggle'
     },
-    JQUERY_SELECTORS = {
+    ELEMENT_SELECTORS = {
         FOREGROUND: 'img[src*="' + BASE_URL + '"], img[data-original*="' + BASE_URL + '"]',
         BACKGROUND: '*[style*="' + BASE_URL + '"], *[data-background-image*="' + BASE_URL + '"]',
         MID: '*[' + HTML_ATTRIBUTES.MID + ']',

@@ -1,0 +1,10 @@
+<div class="{{ baseClass }}outer-carousel">
+    <div class="{{ baseClass }}inner-carousel">
+        <ol class="{{ baseClass }}thumbnails">
+        </ol>
+        <nav class="{{ baseClass }}nav {{ baseClass }}nav-prev">&#10142;</nav>
+        <nav class="{{ baseClass }}nav {{ baseClass }}nav-next">&#10142;</nav>
+    </div>
+</div>
+<span class="{{ baseClass }}ripeness">{{ initialRipenessState }}</span>
+<span class="{{ baseClass }}settings">&#9881;</span>

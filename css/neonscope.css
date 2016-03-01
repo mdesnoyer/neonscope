@@ -29,6 +29,7 @@
 .neonscope-paging,
 .neonscope-score,
 .neonscope-serving-fraction,
+.neonscope-type,
 .neonscope-ctr,
 .neonscope-thumbnail-status {
     box-sizing: border-box;
@@ -42,6 +43,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    background-color: rgba(0, 0, 0, 0.618);
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -248,8 +250,20 @@
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+.neonscope-type {
+    top: 25%;
+    left: 50%;
+    color: gold;
+}
+
+.neonscope-type:hover {
+    background-color: #000;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 .neonscope-serving-fraction {
-    bottom: 50%;
+    bottom: 25%;
     left: 50%;
     color: gold;
 }
