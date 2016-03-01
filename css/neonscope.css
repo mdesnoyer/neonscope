@@ -28,9 +28,9 @@
 .neonscope-nav,
 .neonscope-paging,
 .neonscope-score,
-.neonscope-serving-frac,
+.neonscope-serving-fraction,
 .neonscope-ctr,
-.neonscope-enabled {
+.neonscope-thumbnail-status {
     box-sizing: border-box;
     position: absolute;
     line-height: 1;
@@ -248,13 +248,13 @@
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-.neonscope-serving-frac {
+.neonscope-serving-fraction {
     bottom: 50%;
     left: 50%;
     color: gold;
 }
 
-.neonscope-serving-frac:hover {
+.neonscope-serving-fraction:hover {
     background-color: #000;
 }
 
@@ -272,7 +272,7 @@
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-.neonscope-enabled {
+.neonscope-thumbnail-status {
     width: 1em;
     height: 1em;
     top: 4px;
@@ -284,20 +284,24 @@
     display: none;
 }
 
-.-hero .neonscope-enabled {
+.-hero .neonscope-thumbnail-status {
     display: block;
 }
 
-.neonscope-enabled:hover {
+.neonscope-thumbnail-status:hover {
     background-color: #000;
 }
 
-.enabled-true .neonscope-enabled:before {
+.neonscope-thumbnail-status-enabled .neonscope-thumbnail-status:before {
     content: '\2605';
 }
 
-.enabled-false .neonscope-enabled:before {
+.neonscope-thumbnail-status-disabled .neonscope-thumbnail-status:before {
     content: '\2606';
+}
+
+.neonscope-thumbnail-status-thinking .neonscope-thumbnail-status:before {
+    content: '\00a8';
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */

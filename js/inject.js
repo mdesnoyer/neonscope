@@ -128,14 +128,25 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    function formatModelScore(score) {
-        return score ? parseFloat(Math.round(score * 100) / 100).toFixed(2) : 'n/a';
+    function formatNeonScore(score) {
+        if (score && !isNaN(score) && (score > 0)) {
+            var neonScoresLength = NEONSCORES.length;
+            for (var i = 0; i < neonScoresLength; i++) {
+                if (score < NEONSCORES[i]) {
+                    return i - 1;
+                }
+            }
+            return i - 1;
+        }
+        else {
+            return UNKNOWN_STRING;
+        }
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function formatNeonscopePercentage(num, decimalPlaces) {
-        return num ? (parseFloat(num) * 100).toFixed(decimalPlaces) : 'n/a';
+        return num ? (parseFloat(num) * 100).toFixed(decimalPlaces) : UNKNOWN_STRING;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,11 +167,11 @@ var ACCELERATOR = ACCELERATOR || (function() {
         if (_self._accountId === undefined) {
             debugger;
         }
-        var assembled_url = API_BASE + _self._accountId + '/videos?video_id=' + vid + '&fields=thumbnails&token=' + accessToken;
-        beacon('Hitting URL: ' + assembled_url);
+        var assembledUrl = API_BASE + _self._accountId + '/videos?video_id=' + vid + '&fields=thumbnails&token=' + accessToken;
+        beacon('Hitting URL: ' + assembledUrl);
         $.ajax({
             crossDomain: true,
-            url: assembled_url,
+            url: assembledUrl,
             type: 'GET',
             dataType: 'json',
             jsonp: false,
@@ -171,11 +182,17 @@ var ACCELERATOR = ACCELERATOR || (function() {
                 ;
                 $.each(data.videos[0].thumbnails, function(i, thumb) {
                     if (thumb.type !== 'random' && thumb.type !== 'centerframe') {
-                        htmlString += '<li data-key="' + i + '" style="background-image: url(' + thumb.urls[0] + ');" class="' + CLASSES.BASE + 'thumbnail' + (htmlString === '' ? ' ' + CLASSES.HERO : '') + ' enabled-' + thumb.enabled + '" data-enabled="' + thumb.enabled + '">';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'enabled"></span>';
+                        var thumbUrl = thumb.urls ? (thumb.urls[0] ? thumb.urls[0] : '') : (thumb.url ? thumb.url : ''),
+                            thumbnailStatus = (thumb.enabled ? THUMBNAIL_STATE.ENABLED : THUMBNAIL_STATE.DISABLED)
+                        ;
+                        htmlString += '<li data-' + CLASSES.BASE + 'tid="' + thumb.thumbnail_id + '"';
+                        htmlString += ' data-' + CLASSES.BASE + 'key="' + i + '" style="background-image: url(' + thumbUrl + ');"';
+                        htmlString += ' class="' + CLASSES.BASE + 'thumbnail' + (count === 1 ? ' ' + CLASSES.HERO : '') + ' ' + CLASSES.BASE + 'thumbnail-status-' + thumbnailStatus + '"';
+                        htmlString += ' data-' + CLASSES.BASE + 'thumbnail-status="' + thumbnailStatus + '">';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'thumbnail-status"></span>';
                         htmlString += '    <span class="' + CLASSES.BASE + 'paging">' + count + ' of {{ total }}</span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'score" title="Model Score">' + formatModelScore(thumb.model_score) + '</span>';
-                        htmlString += '    <span class="' + CLASSES.BASE + 'serving-frac" title="Serving Fraction"></span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'score" title="' + NEONSCORE_NAME + '">' + formatNeonScore(thumb.neon_score) + '</span>';
+                        htmlString += '    <span class="' + CLASSES.BASE + 'serving-fraction" title="Serving Fraction"></span>';
                         htmlString += '    <span class="' + CLASSES.BASE + 'ctr" title="Click-through rate"></span>';
                         htmlString += '</li>';
                         count++;
@@ -261,17 +278,13 @@ var ACCELERATOR = ACCELERATOR || (function() {
             });
 
             // 4
-            $ROOT_ELEMENT.on('click', '.' + CLASSES.BASE + 'enabled', function(e) {
+            $ROOT_ELEMENT.on('click', '.' + CLASSES.BASE + 'thumbnail-status', function(e) {
                 var $shell = $(this),
-                    $thumbnail = $shell.closest('.' + CLASSES.BASE + 'thumbnail')
+                    $thumbnail = $shell.closest('.' + CLASSES.BASE + 'thumbnail'),
+                    tid = $thumbnail.attr('data-' + CLASSES.BASE + 'tid'),
+                    thumbnailStatus = $thumbnail.attr('data-' + CLASSES.BASE + 'thumbnail-status')
                 ;
-                $thumbnail.toggleClass('enabled-true').toggleClass('enabled-false');
-                if ($thumbnail.attr('data-enabled') === 'true') {
-                    $thumbnail.attr('data-enabled', 'false');
-                }
-                else {
-                    $thumbnail.attr('data-enabled', 'true');
-                }
+                toggleThumbnail($thumbnail, tid, (thumbnailStatus === THUMBNAIL_STATE.ENABLED ? THUMBNAIL_STATE.DISABLED : THUMBNAIL_STATE.ENABLED), accessToken);
             });
         }
         else {
@@ -282,8 +295,38 @@ var ACCELERATOR = ACCELERATOR || (function() {
             // 3
             $ROOT_ELEMENT.off('click', '.' + CLASSES.BASE + 'nav-next');
             // 4
-            $ROOT_ELEMENT.off('click', '.' + CLASSES.BASE + 'enabled');
+            $ROOT_ELEMENT.off('click', '.' + CLASSES.BASE + 'thumbnail-status');
         }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    function toggleThumbnail($thumbnail, tid, newThumbnailStatus, accessToken) {
+        if ($thumbnail.attr('data-' + CLASSES.BASE + 'thumbnail-status') === THUMBNAIL_STATE.THINKING) {
+            return false;
+        }
+        $thumbnail.attr('data-' + CLASSES.BASE + 'thumbnail-status', THUMBNAIL_STATE.THINKING);
+        $thumbnail.addClass(CLASSES.BASE + 'thumbnail-status-' + THUMBNAIL_STATE.THINKING);
+        $thumbnail.removeClass(CLASSES.BASE + 'thumbnail-status-' + THUMBNAIL_STATE.ENABLED + ' ' + CLASSES.BASE + 'thumbnail-status-' + THUMBNAIL_STATE.DISABLED);
+        var assembledUrl = API_BASE + _self._accountId + '/thumbnails?thumbnail_id=' + tid + '&enabled=' + (newThumbnailStatus === THUMBNAIL_STATE.ENABLED ? '1' : '0') + '&token=' + accessToken;
+        beacon('Hitting URL: ' + assembledUrl);
+        $.ajax({
+            crossDomain: true,
+            url: assembledUrl,
+            type: 'PUT',
+            contentType: 'application/json',
+            success: function(data, textStatus, jqXHR) {
+                $thumbnail.attr('data-' + CLASSES.BASE + 'thumbnail-status', newThumbnailStatus);
+                $thumbnail.removeClass(CLASSES.BASE + 'thumbnail-status-' + THUMBNAIL_STATE.THINKING).addClass(CLASSES.BASE + 'thumbnail-status-' + newThumbnailStatus)
+                console.log('success');
+            },
+            error: function(qXHR, textStatus, errorThrown) {
+                var oldThumbnailStatus = (newThumbnailStatus === THUMBNAIL_STATE.ENABLED ? THUMBNAIL_STATE.DISABLED : THUMBNAIL_STATE.ENABLED);
+                $thumbnail.attr('data-' + CLASSES.BASE + 'thumbnail-status', oldThumbnailStatus);
+                $thumbnail.removeClass(CLASSES.BASE + 'thumbnail-status-' + THUMBNAIL_STATE.THINKING).addClass(CLASSES.BASE + 'thumbnail-status-' + oldThumbnailStatus)
+                console.log('error');
+            }
+        });
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -373,7 +416,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                     var $thumbnails = $shell.find('.' + CLASSES.BASE + 'thumbnail');
                     $thumbnails.each(function() {
                         var $shell = $(this),
-                            key = $shell.attr('data-key'),
+                            key = $shell.attr('data-' + CLASSES.BASE + 'key'),
                             ctr = formatCTR(particle.statistics[key].ctr),
                             servingFrac = formatServingFrac(particle.statistics[key].serving_frac)
                         ;
@@ -381,7 +424,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                             var $shell = $(this);
                             $shell.text(ctr).fadeIn(FADE_TIME); 
                         });
-                        $shell.find('.' + CLASSES.BASE + 'serving-frac').fadeOut(FADE_TIME, function() {
+                        $shell.find('.' + CLASSES.BASE + 'serving-fraction').fadeOut(FADE_TIME, function() {
                             var $shell = $(this);
                             $shell.text(servingFrac).fadeIn(FADE_TIME);
                         });
@@ -396,13 +439,13 @@ var ACCELERATOR = ACCELERATOR || (function() {
             chrome.storage.sync.get({ neonscopeUsername: '', neonscopePassword: '', neonscopeAccountId: '', neonscopeWinningSelector: '' }, function(items) {
                 var username = items.neonscopeUsername,
                     password = items.neonscopePassword,
-                    assembled_url = AUTH_BASE + 'authenticate?username=' + username + '&password=' + password
+                    assembledUrl = AUTH_BASE + 'authenticate?username=' + username + '&password=' + password
                 ;
                 _self._winningSelector = items.neonscopeWinningSelector;
                 _self._accountId = items.neonscopeAccountId;
-                beacon('Hitting URL: ' + assembled_url);
+                beacon('Hitting URL: ' + assembledUrl);
                 $.ajax({
-                    url: assembled_url,
+                    url: assembledUrl,
                     type: 'POST',
                     success: function(data, textStatus, jqXHR) {
                         beacon('success');

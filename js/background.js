@@ -4,7 +4,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    var _state = EXTENSION_STATES.DEAD,
+    var _state = EXTENSION_STATE.DEAD,
         _intervalId,
         _particles = {},
         _tabLockId,
@@ -66,29 +66,29 @@ var NEONSCOPE = NEONSCOPE || (function() {
         beacon('_setExtensionState: ' + state);
         _state = state;
         switch (state) {
-            case EXTENSION_STATES.DEAD:
+            case EXTENSION_STATE.DEAD:
                 _setIconText('');
-                _setIcon(EXTENSION_STATES.DEAD);
+                _setIcon(EXTENSION_STATE.DEAD);
                 _injectedMethod('render', { power: false, accessToken: _accessToken }, function(injectedResponse) {
                     _particles = injectedResponse.data.particles;
                     _tabLockId = undefined;
                     clearInterval(_intervalId);
                 });
                 break;
-            case EXTENSION_STATES.PULSE:
+            case EXTENSION_STATE.PULSE:
                 _setIconText('...');
-                _setIcon(EXTENSION_STATES.PULSE);
+                _setIcon(EXTENSION_STATE.PULSE);
                 if (_accessToken === '') {
                     _injectedMethod('loginRequest', {}, null);
                 }
                 else {
-                    _setExtensionState(EXTENSION_STATES.ALIVE);
+                    _setExtensionState(EXTENSION_STATE.ALIVE);
                 }
                 break;
-            case EXTENSION_STATES.ALIVE:
+            case EXTENSION_STATE.ALIVE:
                 _injectedMethod('render', { power: true, accessToken: _accessToken }, function(injectedResponse) {
                     _particles = injectedResponse.data.particles;
-                    _setIcon(EXTENSION_STATES.ALIVE);
+                    _setIcon(EXTENSION_STATE.ALIVE);
                     _setIconCount();
                     chrome.storage.sync.get({ neonscopeAccountId: '' }, function(items) {
                         _accountId = items.neonscopeAccountId;
@@ -106,15 +106,15 @@ var NEONSCOPE = NEONSCOPE || (function() {
     function _clickIcon(tab) {
         beacon('_clickIcon: ' + _state);
         switch (_state) {
-            case EXTENSION_STATES.DEAD:
+            case EXTENSION_STATE.DEAD:
                 _tabLockId = tab.id;
-                _setExtensionState(EXTENSION_STATES.PULSE);
+                _setExtensionState(EXTENSION_STATE.PULSE);
                 break;
-            case EXTENSION_STATES.PULSE:
-                _setExtensionState(EXTENSION_STATES.DEAD);
+            case EXTENSION_STATE.PULSE:
+                _setExtensionState(EXTENSION_STATE.DEAD);
                 break;
-            case EXTENSION_STATES.ALIVE:
-                _setExtensionState(EXTENSION_STATES.DEAD);
+            case EXTENSION_STATE.ALIVE:
+                _setExtensionState(EXTENSION_STATE.DEAD);
                 break;
         }
     }
@@ -124,7 +124,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     function _tabChanged(tabId, selectInfo) {
         beacon('_tabChanged: tabId=' + tabId + ', _tabLockId=' + _tabLockId);
         if (_tabLockId !== undefined || _tabLockId !== tabId) {
-            _setExtensionState(EXTENSION_STATES.DEAD);
+            _setExtensionState(EXTENSION_STATE.DEAD);
         }
 
     }
@@ -134,7 +134,7 @@ var NEONSCOPE = NEONSCOPE || (function() {
     function _tabUpdated(tabId, changeInfo, tab) {
         beacon('tabUpdated: status=' + changeInfo.status + ', tabId=' + tabId);
         if (changeInfo.status === 'complete' && tab.active && tabId === _tabLockId) {
-            _setExtensionState(EXTENSION_STATES.PULSE);
+            _setExtensionState(EXTENSION_STATE.PULSE);
         }
     }
 
@@ -157,10 +157,10 @@ var NEONSCOPE = NEONSCOPE || (function() {
                 _accessToken = request.data.accessToken;
                 _refreshToken = request.data.refreshToken;
                 if (_accessToken === '') {
-                    _setExtensionState(EXTENSION_STATES.DEAD);
+                    _setExtensionState(EXTENSION_STATE.DEAD);
                 }
                 else {
-                    _setExtensionState(EXTENSION_STATES.ALIVE);
+                    _setExtensionState(EXTENSION_STATE.ALIVE);
                 }
                 break;
         }
@@ -169,10 +169,10 @@ var NEONSCOPE = NEONSCOPE || (function() {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     function _ajaxParticleStats(vid, newRipenessState) {
-        var assembled_url = API_BASE + _accountId + '/statistics/thumbnails?video_id=' + vid + '&token=' + _accessToken;
+        var assembledUrl = API_BASE + _accountId + '/statistics/thumbnails?video_id=' + vid + '&token=' + _accessToken;
         $.ajax({
             crossDomain: true,
-            url: assembled_url,
+            url: assembledUrl,
             type: 'GET',
             dataType: 'json',
             jsonp: false,
