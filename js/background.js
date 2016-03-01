@@ -53,10 +53,8 @@ var NEONSCOPE = NEONSCOPE || (function() {
         if (_tabLockId === undefined) {
             beacon('_injectedMethod: undefined tabLockId');
         }
-        chrome.tabs.executeScript(_tabLockId, { file: SCRIPTS.JQUERY }, function() {
-            chrome.tabs.executeScript(_tabLockId, { file: SCRIPTS.INJECT }, function() {
-                chrome.tabs.sendMessage(_tabLockId, { method: method, args: args }, callback);
-            });
+        chrome.tabs.executeScript(_tabLockId, { file: SCRIPTS.INJECT }, function() {
+            chrome.tabs.sendMessage(_tabLockId, { method: method, args: args }, callback);
         });
     }
 

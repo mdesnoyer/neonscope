@@ -1,0 +1,14 @@
+<li
+    data-{{ baseClass }}tid="{{ thumbnailId }}"
+    data-{{ baseClass }}key="{{ i }}"
+    data-{{ baseClass }}thumbnail-status="{{ thumbnailStatus }}"
+    style="background-image: url('{{ thumbnailUrl }}');"
+    class="{{ baseClass }}thumbnail {{ baseClass }}thumbnail-status-{{ thumbnailStatus }} {{ heroClass }}"
+>
+    <span class="{{ baseClass }}thumbnail-status"></span>
+    <span class="{{ baseClass }}paging">{{ count }} of {{ total }}</span>
+    <span class="{{ baseClass }}score" title="{{ neonScoreName }}">{{ neonScore }}</span>
+    <span class="{{ baseClass }}serving-fraction" title="Serving Fraction"></span>
+    <span class="{{ baseClass }}ctr" title="Click-through rate"></span>
+    <span class="{{ baseClass }}type" title="Type">{{ thumbType }}</span>
+</li>

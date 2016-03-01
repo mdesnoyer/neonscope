@@ -14,6 +14,7 @@
     "background": {
         "scripts": [
             "js/lib/jquery-2.2.0.min.js",
+            "js/lib/mustache.min.js",
             "js/shared.js",
             "js/background.js"
         ],
@@ -35,6 +36,8 @@
                 "css/neonscope.css"
             ],
             "js": [
+                "js/lib/jquery-2.2.0.min.js",
+                "js/lib/mustache.min.js",
                 "js/shared.js"
             ]
         }
