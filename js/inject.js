@@ -141,18 +141,27 @@ var ACCELERATOR = ACCELERATOR || (function() {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    function formatNeonScore(score) {
+    function getNeonScoreData(score) {
         if (score && !isNaN(score) && (score > 0)) {
             var neonScoresLength = NEONSCORES.length;
             for (var i = 0; i < neonScoresLength; i++) {
-                if (score < NEONSCORES[i]) {
-                    return i - 1;
+                if (score < NEONSCORES[i].modelScore) {
+                    return {
+                        neonScore: i - 1,
+                        emoji: NEONSCORES[i].emoji
+                    };
                 }
             }
-            return i - 1;
+            return {
+                neonScore: i - 1,
+                emoji: NEONSCORES[i].emoji
+            };
         }
         else {
-            return UNKNOWN_STRING;
+            return {
+                neonScore: UNKNOWN_STRING,
+                emoji: UNKNOWN_EMOJI
+            };
         }
     }
 
@@ -204,21 +213,19 @@ var ACCELERATOR = ACCELERATOR || (function() {
                     }
                 });
                 $.each(goodThumbnails, function(i, thumb) {
-                    var thumbnailUrl = thumb.url,
-                        thumbnailStatus = (thumb.enabled ? THUMBNAIL_STATE.ENABLED : THUMBNAIL_STATE.DISABLED)
-                    ;
                     _renderThumbnail($thumbnails, {
                         baseClass: CLASSES.BASE,
                         thumbnailId: thumb.thumbnail_id,
                         thumbType: thumb.type,
                         i: i,
-                        thumbnailStatus: thumbnailStatus,
-                        thumbnailUrl: thumbnailUrl,
+                        thumbnailStatus: (thumb.enabled ? THUMBNAIL_STATE.ENABLED : THUMBNAIL_STATE.DISABLED),
+                        thumbnailUrl: thumb.url,
                         heroClass: (count === 1 ? CLASSES.HERO : ''),
                         count: count++,
                         total: goodThumbnails.length,
                         neonScoreName: NEONSCORE_NAME,
-                        neonScore: formatNeonScore(thumb.neon_score)
+                        neonScore: neonScoreData.neonScore,
+                        emoji: neonScoreData.emoji
                     });
                 });
                 $thumbnails.fadeIn(FADE_TIME, function() {

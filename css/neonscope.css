@@ -28,6 +28,7 @@
 .neonscope-nav,
 .neonscope-paging,
 .neonscope-score,
+.neonscope-emoji,
 .neonscope-serving-fraction,
 .neonscope-type,
 .neonscope-ctr,
@@ -270,6 +271,17 @@
 
 .neonscope-serving-fraction:hover {
     background-color: #000;
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+.neonscope-emoji {
+    bottom: 50%;
+    left: 25%;
+    background-color: #fff !important;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 3em;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
