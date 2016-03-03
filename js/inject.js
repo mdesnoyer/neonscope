@@ -213,6 +213,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
                     }
                 });
                 $.each(goodThumbnails, function(i, thumb) {
+                    var neonScoreData = getNeonScoreData(thumb.neon_score);
                     _renderThumbnail($thumbnails, {
                         baseClass: CLASSES.BASE,
                         thumbnailId: thumb.thumbnail_id,
