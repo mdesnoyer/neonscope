@@ -65,21 +65,21 @@ var APP_NAME = 'neonscope',
 	NEONSCORES = [
         { modelScore: 0.000, emoji: '❓' },
 		{ modelScore: 0.155, emoji: '❓' },
-		{ modelScore: 0.194, emoji: '❓' },
+		{ modelScore: 0.194, emoji: '😴' }, // 2 - EH
 		{ modelScore: 0.222, emoji: '❓' },
-		{ modelScore: 0.247, emoji: '❓' },
+		{ modelScore: 0.247, emoji: '💀' }, // 4 - EH
 		{ modelScore: 0.269, emoji: '💩' }, // 5 - NH
-		{ modelScore: 0.289, emoji: '❓' },
+		{ modelScore: 0.289, emoji: '👿' }, // 6 - EH
 		{ modelScore: 0.310, emoji: '❓' },
-		{ modelScore: 0.328, emoji: '❓' },
+		{ modelScore: 0.328, emoji: '😵' }, // 8 - EH
 		{ modelScore: 0.347, emoji: '❓' },
 		{ modelScore: 0.363, emoji: '❓' },
-		{ modelScore: 0.381, emoji: '❓' },
+		{ modelScore: 0.381, emoji: '😫' }, // 11 - EH
 		{ modelScore: 0.396, emoji: '❓' },
 		{ modelScore: 0.410, emoji: '❓' },
-		{ modelScore: 0.424, emoji: '❓' },
+		{ modelScore: 0.424, emoji: '👹' }, // 14 - EH
 		{ modelScore: 0.438, emoji: '❓' },
-		{ modelScore: 0.452, emoji: '❓' },
+		{ modelScore: 0.452, emoji: '😡' }, // 16 - EH
 		{ modelScore: 0.465, emoji: '❓' },
 		{ modelScore: 0.479, emoji: '❓' },
 		{ modelScore: 0.492, emoji: '❓' },
@@ -100,7 +100,7 @@ var APP_NAME = 'neonscope',
 		{ modelScore: 0.670, emoji: '❓' },
 		{ modelScore: 0.681, emoji: '❓' },
 		{ modelScore: 0.693, emoji: '❓' },
-		{ modelScore: 0.704, emoji: '❓' },
+		{ modelScore: 0.704, emoji: '👻' }, // 37 - EH
 		{ modelScore: 0.715, emoji: '❓' },
 		{ modelScore: 0.727, emoji: '❓' },
 		{ modelScore: 0.739, emoji: '❓' },
@@ -113,7 +113,7 @@ var APP_NAME = 'neonscope',
 		{ modelScore: 0.826, emoji: '❓' },
 		{ modelScore: 0.837, emoji: '❓' },
 		{ modelScore: 0.850, emoji: '❓' },
-		{ modelScore: 0.863, emoji: '❓' },
+		{ modelScore: 0.863, emoji: '💃' }, // 50 - EH
 		{ modelScore: 0.876, emoji: '❓' },
 		{ modelScore: 0.889, emoji: '❓' },
 		{ modelScore: 0.901, emoji: '❓' },
@@ -131,7 +131,7 @@ var APP_NAME = 'neonscope',
 		{ modelScore: 1.080, emoji: '❓' },
 		{ modelScore: 1.096, emoji: '❓' },
 		{ modelScore: 1.115, emoji: '❓' },
-		{ modelScore: 1.132, emoji: '❓' },
+		{ modelScore: 1.132, emoji: '✌️' }, // 68 - EH
 		{ modelScore: 1.151, emoji: '❓' },
 		{ modelScore: 1.170, emoji: '❓' },
 		{ modelScore: 1.191, emoji: '❓' },
@@ -146,19 +146,19 @@ var APP_NAME = 'neonscope',
 		{ modelScore: 1.402, emoji: '🐥' }, // 80 - JV
 		{ modelScore: 1.432, emoji: '❓' },
 		{ modelScore: 1.461, emoji: '❓' },
-		{ modelScore: 1.494, emoji: '❓' },
+		{ modelScore: 1.494, emoji: '😎' }, // 83 - EH
 		{ modelScore: 1.529, emoji: '❓' },
 		{ modelScore: 1.566, emoji: '🎉' }, // 85 - NH
 		{ modelScore: 1.604, emoji: '❓' },
 		{ modelScore: 1.646, emoji: '❓' },
-		{ modelScore: 1.690, emoji: '❓' },
+		{ modelScore: 1.690, emoji: '😘' }, // 88 - EH
 		{ modelScore: 1.741, emoji: '❓' },
 		{ modelScore: 1.792, emoji: '😏' }, // 90 - EH
 		{ modelScore: 1.847, emoji: '❓' },
 		{ modelScore: 1.917, emoji: '❓' },
-		{ modelScore: 1.991, emoji: '❓' },
+		{ modelScore: 1.991, emoji: '😍' }, // 93 - EH
 		{ modelScore: 2.080, emoji: '❓' },
-		{ modelScore: 2.187, emoji: '❓' },
+		{ modelScore: 2.187, emoji: '😁' }, // 95 - EH
 		{ modelScore: 2.315, emoji: '❓' },
 		{ modelScore: 2.474, emoji: '❓' },
 		{ modelScore: 2.703, emoji: '❓' },
