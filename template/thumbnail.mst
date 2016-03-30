@@ -1,9 +1,9 @@
 <li
+    class="{{ baseClass }}thumbnail {{ baseClass }}thumbnail-status-{{ thumbnailStatus }} {{ heroClass }}"
+    style="background-image: url('{{ thumbnailUrl }}');"
     data-{{ baseClass }}tid="{{ thumbnailId }}"
     data-{{ baseClass }}key="{{ i }}"
     data-{{ baseClass }}thumbnail-status="{{ thumbnailStatus }}"
-    style="background-image: url('{{ thumbnailUrl }}');"
-    class="{{ baseClass }}thumbnail {{ baseClass }}thumbnail-status-{{ thumbnailStatus }} {{ heroClass }}"
 >
     <span class="{{ baseClass }}thumbnail-status"></span>
     <span class="{{ baseClass }}paging">{{ count }} of {{ total }}</span>

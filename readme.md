@@ -3,7 +3,6 @@
 ## Usage
 
 1. Goto `https://github.com/neon-lab/neonscope/archive/development.zip` and download, unzip.
-1. For now (last stable version) - use `https://github.com/neon-lab/neonscope/archive/707d1b63a66058833ee8dee5f0848f7efde7527c.zip`
 1. Run Chrome
 1. Window menu
 1. Extensions

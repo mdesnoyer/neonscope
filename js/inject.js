@@ -100,7 +100,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     function _renderCarousel($container, args) {
         beacon('_renderCarousel');
         var result = '';
-        $.get('template/mask.mst', function(template) {
+        $.get(chrome.extension.getURL('template/carousel.mst'), function(template) {
             var rendered = Mustache.render(template, args);
             $container.html(rendered);
         });
@@ -111,7 +111,7 @@ var ACCELERATOR = ACCELERATOR || (function() {
     function _renderThumbnail($container, args) {
         beacon('_renderThumbnail');
         var result = '';
-        $.get('template/thumbnail.mst', function(template) {
+        $.get(chrome.extension.getURL('template/thumbnail.mst'), function(template) {
             var rendered = Mustache.render(template, args);
             $container.append(rendered);
         });
